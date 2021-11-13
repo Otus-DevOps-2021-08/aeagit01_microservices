@@ -1,0 +1,23 @@
+---
+- name: Install Ruby and Bundle
+  hosts: all
+  become: yes
+  vars_files:
+    - vars/default.yml
+
+  tasks:
+    - name: Pull default Docker image
+      docker_image:
+        name: "{{ default_image }}"
+        source: pull
+
+    # Creates the number of containers defined by the variable create_containers, using values from vars file
+    - name: Create default containers
+      docker_container:
+        name: "{{ default_name }}{{ item }}"
+        image: "{{ default_image }}"
+        network_mode: host
+        exposed_ports: "{{ default_port }}"
+        #command: "{{ default_command }}"
+        state: started
+      with_sequence: count={{ create_containers }}

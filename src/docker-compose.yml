@@ -1,0 +1,47 @@
+version: '3.3'
+services:
+  post_db:
+    image: mongo:3.2
+    volumes:
+      - post_db:${DOCKER_VOL_PATH}
+    networks:
+      - ${LOCAL_NET_NAME}
+  ui:
+    build: ./ui
+    image: ${USERNAME}/ui:${UI_IMAGE_TAG}
+    container_name: ui
+    ports:
+      - ${SERVICE_PORT}:${SERVICE_PORT}/tcp
+    networks:
+      - ${FRONT_NET_NAME}
+  post:
+    build: ./post-py
+    image: ${USERNAME}/post:${POST_IMAGE_TAG}
+    container_name: post
+    networks:
+      - ${LOCAL_NET_NAME}
+      - ${FRONT_NET_NAME}
+  comment:
+    build: ./comment
+    image: ${USERNAME}/comment:${COMMENT_IMAGE_TAG}
+    container_name: comment
+    networks:
+      - ${LOCAL_NET_NAME}
+      - ${FRONT_NET_NAME}
+
+volumes:
+  post_db:
+
+networks:
+  front_net:
+    name: ${FRONT_NET_NAME}
+    ipam:
+      driver: default
+      config:
+        - subnet: ${FRONT_SUBNET}
+  back_net:
+    name: ${LOCAL_NET_NAME}
+    ipam:
+      driver: default
+      config:
+        - subnet: ${LOCAL_SUBNET}

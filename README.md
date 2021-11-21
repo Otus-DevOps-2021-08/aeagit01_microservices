@@ -3,7 +3,8 @@ aeagit01 microservices repository
 =======================
     ![Main](https://github.com/Otus-DevOps-2021-08/aeagit01_microservices/actions/workflows/run-tests.yml/badge.svg?branch=main) *** ![PULL request](https://github.com/Otus-DevOps-2021-08/aeagit01_microservices/actions/workflows/run-tests.yml/badge.svg?event=pull_request)
 =======================
-docker - 4
+
+#docker - 4
 Фомирование имени контейнера:
     default - составляется из имени каталога, содержащего файл docker-compose.yaml, за ним следует имя контейнера, указанное в файле docker-compose.yaml , и номер экземпляра - <project_folder_name>_<conteiner_name>_<num>
     Первая часть может быть переопределена:
@@ -24,6 +25,7 @@ add telnet && net tools (ifconfig,ping etc.) to alpine image
 apk add busybox-extras && apk add net-tools
 
 =======================
+
 #docker - 3
 При использовании образа ubunu для модуля ui и post, необходимо постаить пакеты:
      ruby-full
@@ -38,6 +40,7 @@ apk add busybox-extras && apk add net-tools
 Самый маленький образ получился при использование alpine
 
 =======================
+
 #docker-1 && docker -2
 
 docker-machine - в настоящее время depricated для установки можно использовать ссылку:

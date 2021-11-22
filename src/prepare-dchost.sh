@@ -13,4 +13,4 @@ docker run -d --network=reddit --network-alias=sendpost krotpk/post:1.0
 docker run -d --network=reddit --network-alias=msg_data krotpk/comment:1.0
 docker run -d --network=reddit -p 9292:9292 krotpk/ui:1.0
 
-open -a "Google Chrome" http://51.250.9.249:9292
+open -a "Google Chrome" http://51.250.11.104:9292

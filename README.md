@@ -3,6 +3,24 @@ aeagit01 microservices repository
 =======================
     ![Main](https://github.com/Otus-DevOps-2021-08/aeagit01_microservices/actions/workflows/run-tests.yml/badge.svg?branch=main) *** ![PULL request](https://github.com/Otus-DevOps-2021-08/aeagit01_microservices/actions/workflows/run-tests.yml/badge.svg?event=pull_request)
 =======================
+#monitoring-1
+Выполнено:
+1. Приготовили докер хост
+2. запустили докер контейнер на базе образа prom/prometheus
+3. Протестировали работу запущенного prometheus
+4. Собрали свой образ на базе  prom/prometheus:v2.1.0, подготовили первый вариант конфигурационного файла, запушили образ в свое хранилище на DockerHub
+5. Собрали и запушили образы сервисов, сформировали docker-compose.yml для разворачивания всех сонтейнеров на docker-host-e
+6. Протестировали работу prometheus, изменяя состояния отслеживаемых сервисов
+7. Подключили node-exporter, протестировали работу
+8. Подключили mongodb-exporter на базе образа ercona/mongodb_exporter:0.30.0, образ разместили в хранилище, протестировали работу
+9. Подключили blackbox-exporter, образ разместили в хранилище, протестировали работу
+
+https://prometheus.io/docs/guides/multi-target-exporter/
+https://habr.com/ru/company/otus/blog/500448/
+https://github.com/prometheus/blackbox_exporter/blob/master/CONFIGURATION.md
+
+
+=======================
 
 #docker - 4
 Фомирование имени контейнера:

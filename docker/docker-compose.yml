@@ -91,13 +91,13 @@ volumes:
 
 networks:
   front_net:
-    name: ${FRONT_NET_NAME}
+ #   name: ${FRONT_NET_NAME}
     ipam:
       driver: default
       config:
         - subnet: ${FRONT_SUBNET}
   back_net:
-    name: ${LOCAL_NET_NAME}
+ #   name: ${LOCAL_NET_NAME}
     ipam:
       driver: default
       config:

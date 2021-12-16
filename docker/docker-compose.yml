@@ -1,0 +1,104 @@
+version: '3.3'
+services:
+  post_db:
+    image: mongo:3.2
+    #container_name: db_mongo
+    volumes:
+      - post_db:${DOCKER_VOL_PATH}
+    networks:
+      - ${LOCAL_NET_NAME}
+  ui:
+    build: ./ui
+    image: ${USERNAME}/ui:${UI_IMAGE_TAG}
+    container_name: ui
+    ports:
+      - ${SERVICE_PORT}:${SERVICE_PORT}/tcp
+    networks:
+      - ${FRONT_NET_NAME}
+  post:
+    build: ./post-py
+    image: ${USERNAME}/post:${POST_IMAGE_TAG}
+    container_name: post
+    networks:
+      - ${LOCAL_NET_NAME}
+      - ${FRONT_NET_NAME}
+  comment:
+    build: ./comment
+    image: ${USERNAME}/comment:${COMMENT_IMAGE_TAG}
+    container_name: comment
+    networks:
+      - ${LOCAL_NET_NAME}
+      - ${FRONT_NET_NAME}
+  prometheus:
+    image: ${USERNAME}/prometheus
+    ports:
+      - '9090:9090'
+    volumes:
+      - prometheus_data:/prometheus
+    command: # Передаем доп параметры в командной строке
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention=1d' # Задаем время хранения метрик в 1 день
+    networks:
+      - ${LOCAL_NET_NAME}
+      - ${FRONT_NET_NAME}
+
+  node-exporter:
+    image: prom/node-exporter:v0.15.2
+    user: root
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points="^/(sys|proc|dev|host|etc)($$|/)"'
+    networks:
+      - ${LOCAL_NET_NAME}
+      - ${FRONT_NET_NAME}
+
+  mongodb-exporter:
+    image: ${USERNAME}/mongodb_exporter:${COMMENT_IMAGE_TAG}
+    container_name: mongodb-exporter
+    ports:
+      - '9216:9216'
+      - '27017:27017'
+    environment:
+      MONGODB_URI: 'mongodb://post_db:27017'
+
+    networks:
+      - ${LOCAL_NET_NAME}
+      - ${FRONT_NET_NAME}
+
+  blackbox-exporter:
+    image: ${USERNAME}/blackbox_exporter:${COMMENT_IMAGE_TAG}
+    container_name: blackbox-exporter
+    ports:
+      - '9115:9115'
+    volumes:
+      - blackbox_data:/etc/blackbox_exporter
+    command: # Передаем доп параметры в командной строке
+      - '--config.file=/etc/blackbox_exporter/config.yml'
+    networks:
+      - ${LOCAL_NET_NAME}
+      - ${FRONT_NET_NAME}
+
+volumes:
+  post_db:
+  prometheus_data:
+  blackbox_data:
+
+networks:
+  front_net:
+ #   name: ${FRONT_NET_NAME}
+    ipam:
+      driver: default
+      config:
+        - subnet: ${FRONT_SUBNET}
+  back_net:
+ #   name: ${LOCAL_NET_NAME}
+    ipam:
+      driver: default
+      config:
+        - subnet: ${LOCAL_SUBNET}

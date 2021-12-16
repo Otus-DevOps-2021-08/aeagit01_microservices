@@ -1,0 +1,8 @@
+{
+    "folder_id": "b1gdo1fjgj1e52ucg1cs",
+    "source_image_family": "ubuntu-1804-lts",
+    "service_account_key_file": "/Users/aea/.yc/key.json",
+    "platform_id": "standard-v1",
+    "ssh_username": "ubuntu",
+    "subnet_id": "e9blpaes323qg5anh1ma"
+}

@@ -31,6 +31,4 @@ services:
 
 networks:
   front_net:
-   name: ${FRONT_NET_NAME}
   back_net:
-   name: ${LOCAL_NET_NAME}

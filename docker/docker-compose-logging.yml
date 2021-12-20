@@ -11,27 +11,16 @@ services:
       - "9200"
     ports:
       - "9200:9200"
-    # networks:
-    #   - ${LOCAL_NET_NAME}
-    #   - ${FRONT_NET_NAME}
-
   kibana:
     image: docker.elastic.co/kibana/kibana:7.16.1
     ports:
       - "5601:5601"
-    # networks:
-    #   - ${LOCAL_NET_NAME}
-    #   - ${FRONT_NET_NAME}
 
   fluentd:
-    image: ${USER_NAME}/fluentd:latest
+    image: ${USERNAME}/fluentd:latest
     ports:
       - "24224:24224"
       - "24224:24224/udp"
-    # networks:
-    #   - ${LOCAL_NET_NAME}
-    #   - ${FRONT_NET_NAME}
-
   zipkin:
     image: openzipkin/zipkin:2.21.0
     ports:
@@ -43,13 +32,5 @@ services:
 networks:
   front_net:
    name: ${FRONT_NET_NAME}
-    # ipam:
-    #   driver: default
-    #   config:
-    #     - subnet: ${FRONT_SUBNET}
   back_net:
    name: ${LOCAL_NET_NAME}
-    # ipam:
-    #   driver: default
-    #   config:
-    #     - subnet: ${LOCAL_SUBNET}

@@ -1,17 +1,15 @@
-FROM ruby:2.7-alpine
+FROM ruby:2.3.3
+
+RUN apt-get update -qq && apt-get install -y build-essential
 
 ENV APP_HOME /app
 RUN mkdir $APP_HOME
-
-ENV BUNDLER_VERSION 2.0.2
-
-RUN apk add --update --no-cache  build-base && gem install bundler -v "$BUNDLER_VERSION"
-
 WORKDIR $APP_HOME
-COPY Gemfile* $APP_HOME/
-COPY . $APP_HOME
 
-RUN bundle check || bundle install
+ADD Gemfile* $APP_HOME/
+RUN bundle install
+
+ADD . $APP_HOME
 
 ENV POST_SERVICE_HOST post
 ENV POST_SERVICE_PORT 5000

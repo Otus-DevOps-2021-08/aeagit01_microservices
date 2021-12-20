@@ -7,6 +7,8 @@ services:
       - post_db:${DOCKER_VOL_PATH}
     networks:
       - ${LOCAL_NET_NAME}
+    # environment:
+    #   - ZIPKIN_ENABLED=${ZIPKIN_ENABLED}
   ui:
     build: ./ui
     image: ${USERNAME}/ui:${UI_IMAGE_TAG}
@@ -15,6 +17,15 @@ services:
       - ${SERVICE_PORT}:${SERVICE_PORT}/tcp
     networks:
       - ${FRONT_NET_NAME}
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-async: "true"
+        fluentd-address: localhost:24224
+        tag: service.ui
+    environment:
+      - ZIPKIN_ENABLED=${ZIPKIN_ENABLED}
+
   post:
     build: ./post-py
     image: ${USERNAME}/post:${POST_IMAGE_TAG}
@@ -22,10 +33,27 @@ services:
     networks:
       - ${LOCAL_NET_NAME}
       - ${FRONT_NET_NAME}
+    environment:
+      - POST_DATABASE_HOST=post_db
+      - POST_DATABASE=posts
+      - ZIPKIN_ENABLED=${ZIPKIN_ENABLED}
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-async: "true"
+        fluentd-address: localhost:24224
+        tag: service.post
+    depends_on:
+      - post_db
+    ports:
+      - "5000:5000"
+
   comment:
     build: ./comment
     image: ${USERNAME}/comment:${COMMENT_IMAGE_TAG}
     container_name: comment
+    environment:
+      - ZIPKIN_ENABLED=${ZIPKIN_ENABLED}
     networks:
       - ${LOCAL_NET_NAME}
       - ${FRONT_NET_NAME}
@@ -59,7 +87,7 @@ services:
       - ${FRONT_NET_NAME}
 
   mongodb-exporter:
-    image: ${USERNAME}/mongodb_exporter:${COMMENT_IMAGE_TAG}
+    image: ${USERNAME}/mongodb_exporter:latest
     container_name: mongodb-exporter
     ports:
       - '9216:9216'
@@ -72,7 +100,7 @@ services:
       - ${FRONT_NET_NAME}
 
   blackbox-exporter:
-    image: ${USERNAME}/blackbox_exporter:${COMMENT_IMAGE_TAG}
+    image: ${USERNAME}/blackbox_exporter:latest
     container_name: blackbox-exporter
     ports:
       - '9115:9115'

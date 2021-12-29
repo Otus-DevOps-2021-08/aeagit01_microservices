@@ -3,6 +3,38 @@ aeagit01 microservices repository
 =======================
     ![Main](https://github.com/Otus-DevOps-2021-08/aeagit01_microservices/actions/workflows/run-tests.yml/badge.svg?branch=main) *** ![PULL request](https://github.com/Otus-DevOps-2021-08/aeagit01_microservices/actions/workflows/run-tests.yml/badge.svg?event=pull_request)
 =======================
+logging - 1
+
+1. Подготовили Docker хост и пересобрали образы из заданного репозитория
+2. Создали docker-compose-loggin.yml для разворачивания elasticsearch в соотвествии с заданием
+3. подготовили Dockerfile, config и собрали образ Fluentd в соотвествии с заданием
+4. Запустили контейнеры из новых образов, настроили передачу логов во Fluentd
+5. Запустили систему сбора логов
+6. Тестирование работы kibana (первичная настройка, тестирование простых запросов)
+7. Тестирование работы фильтров, для разбора различного вида логов
+8. Знакомство с Grok-шаблонами, настройка с их использованием разбора записей журналов
+9. НАстройка дополнительного шаблона в соответствии с заданием *
+10.Настройка для запуска сервиса Zipkin
+11.Запуск сервиса Zipkin, знакомство с его работой.
+12.Подготовка и запуск контейнеров с ошибкой, для проверки использования систем логирования при поиска ошибок в работе сервисов
+При проверке ошибок было выявлено следующее:
+        - Сервис ui пытается найти сервис post в собственном контейнере:  Failed to open TCP connection to 127.0.0.1:4567
+          (Connection   refused - connect(2) for "127.0.0.1" port 4567), что говорит о неустановленном значении
+          переменной POST_SERVICE_HOST.
+        - проверка Dockerfile сервиса ui выявила, что в нем отсутствует блок переменных устанавливающих наименования сервисов POST,COMMENT
+        - после внесения исправлений и перезапуска сервисов. Нормальная работа восстановилась
+
+
+Ошибка при запуске "Cannot start service public-site: failed to initialize logging driver: dial tcp 127.0.0.1:24224:
+                    connect: connection refused."
+Возникла при попытке запуска контейнеров с передачей логов во Fluentd, лечиться указанием параметра - fluentd-async.
+https://docs.docker.com/config/containers/logging/fluentd/#fluentd-async-connect
+Конструктор grok выражений
+http://grokconstructor.appspot.com/do/match#result
+отладчик grok выражений
+https://grokdebug.herokuapp.com/
+
+=======================
 #monitoring-1
 Выполнено:
 1. Приготовили докер хост

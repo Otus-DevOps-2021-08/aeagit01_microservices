@@ -3,6 +3,41 @@ aeagit01 microservices repository
 =======================
     ![Main](https://github.com/Otus-DevOps-2021-08/aeagit01_microservices/actions/workflows/run-tests.yml/badge.svg?branch=main) *** ![PULL request](https://github.com/Otus-DevOps-2021-08/aeagit01_microservices/actions/workflows/run-tests.yml/badge.svg?event=pull_request)
 =======================
+kubernetes - 1
+1. Подготовка манифестов для запуска POD-ов
+2. Подготовка сценария создания хостов для развертывания Kubernetes
+3. Настройка мастер ноды
+4. Настройка worker-ов
+5. Установка сетевого плагина Calico
+6. Проверка работы узлов Kubernetes
+7. Подготовка сценариев Terraform и Ansible для развертывания кластера Kubernetes
+
+===
+To start using your cluster, you need to run the following as a regular user:
+
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+You should now deploy a pod network to the cluster.
+Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
+  https://kubernetes.io/docs/concepts/cluster-administration/addons/
+
+You can now join any number of control-plane nodes by copying certificate authorities
+and service account keys on each node and then running the following as root:
+
+  kubeadm join 51.250.10.70:6443 --token <TOKEN> \
+    --discovery-token-ca-cert-hash sha256:<KEY> \
+    --control-plane
+
+Then you can join any number of worker nodes by running the following on each as root:
+
+kubeadm join 51.250.10.70:6443 --token <TOKEN> \
+    --discovery-token-ca-cert-hash sha256:<KEY>
+
+kubelet - ставим первым, иначе можно попасть на ошибку установки.
+
+=======================
 logging - 1
 
 1. Подготовили Docker хост и пересобрали образы из заданного репозитория

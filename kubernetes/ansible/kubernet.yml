@@ -1,0 +1,27 @@
+---
+- name: Install Kubernetes and tools
+  hosts: all
+  become: yes
+  vars_files:
+    - vars/default.yml
+  tasks:
+   - name: Add kubernets GPG apt Key
+     become: true
+     apt_key:
+        keyring: /usr/share/keyrings/kubernetes-archive-keyring.gpg
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        state: present
+   - name: Add kubernets Repository
+     become: true
+     apt_repository:
+      repo: "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main"
+      state: present
+      #   deb https://download.docker.com/linux/ubuntu {{ default_dist_release }} stable
+
+   - name: install kubectl
+     apt: name={{ item }} state=present update_cache=yes
+     loop: [
+          'kubelet=1.19.0-00',
+          'kubectl=1.19.0-00',
+          'kubeadm=1.19.0-00'
+     ]

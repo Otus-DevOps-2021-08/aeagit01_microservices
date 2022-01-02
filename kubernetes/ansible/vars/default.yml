@@ -1,0 +1,7 @@
+---
+create_containers: 1
+default_name: "redditapp"
+default_image: "krotpk/otus-reddit:1.0"
+default_port: 9292
+default_command: puma
+default_dist_release: "bionic"

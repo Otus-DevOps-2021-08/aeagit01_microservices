@@ -1,0 +1,10 @@
+service_account_key_file = "service key json file"
+cloud_id                 = "cloud_id"
+folder_id                = "folder_id"
+zone                     = "ru-central1-a"
+public_key_path          = "public_key"
+private_key              = "private_key"
+sa_user_id               = "sa_user_id"
+count_of_inst            = 2
+os_image_name            = "os_image_id"
+subnet_id                = "subnet_id"

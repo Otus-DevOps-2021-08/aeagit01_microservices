@@ -1,9 +1,9 @@
 [all]
-master-host ansible_host=51.250.11.27
-node-host   ansible_host=51.250.8.236
+master-host ansible_host=62.84.125.113
+node-host   ansible_host=62.84.117.59
 
 [master]
-master-host ansible_host=51.250.11.27
+master-host ansible_host=62.84.125.113
 
 [nodes]
-node-host   ansible_host=51.250.8.236
+node-host   ansible_host=62.84.117.59

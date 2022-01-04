@@ -14,5 +14,5 @@ spec:
         app: mongo
     spec:
       containers:
-      - image: chromko/mongo
+      - image: chromko/mongodb
         name: mongo

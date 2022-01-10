@@ -1,0 +1,9 @@
+[all]
+master-host ansible_host=51.250.11.27
+node-host   ansible_host=51.250.8.236
+
+[master]
+master-host ansible_host=51.250.11.27
+
+[nodes]
+node-host   ansible_host=51.250.8.236

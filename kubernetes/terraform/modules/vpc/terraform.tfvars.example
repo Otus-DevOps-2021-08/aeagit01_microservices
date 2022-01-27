@@ -1,0 +1,5 @@
+zone             = "ru-central1-a"
+subnet-addresses = "10.100.0.0/16"
+subnet-name      = "app-subnet"
+network-name     = "app-network"
+#count_of_inst            = 1

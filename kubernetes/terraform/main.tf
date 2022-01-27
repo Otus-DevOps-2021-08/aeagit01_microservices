@@ -6,92 +6,97 @@ terraform {
     }
   }
 }
+#==============================================
 
 provider "yandex" {
-  service_account_key_file = var.service_account_key_file
-  cloud_id                 = var.cloud_id
-  folder_id                = var.folder_id
-  zone                     = var.zone
+    service_account_key_file = var.service_account_key_file
+    cloud_id                 = var.cloud_id
+    folder_id                = var.folder_id
+    zone                     = var.zone
+    #token                    = "key.json"
 }
 
-provider "yandex" {
-  token     = "key.json"
-  cloud_id  = "<идентификатор облака>"
-  folder_id = var.folder-id
-  zone      = "ru-central1-a"
+resource "yandex_compute_placement_group" "placement_group" {
+  #description = "my description"
+
+  count       = var.placement_group_id=="" ? 1:0
+  name        = "placement-group${count.index}"
+  folder_id   = var.folder_id
+
 }
 
-variable "folder-id" {
-  default = "<идентификатор каталога>"
+module "cluster_network" {
+    #depends_on = [ module.db ]
+
+    source            = "./modules/vpc"
+    zone              = "ru-central1-a"
+    subnet-addresses  = "10.100.0.0/16"
+    subnet-name       = "cluster_subnet"
+    network-name      = "cluster_network"
 }
 
-resource "yandex_kubernetes_cluster" "zonal_cluster_resource_name" {
-  name        = "my-cluster"
-  description = "my-cluster description"
-  network_id = "${yandex_vpc_network.this.id}"
+module "cluster_resourse_group" {
+    depends_on = [
+      "module.cluster_network",
+      "yandex_kubernetes_cluster.yc_kube_cluster",
+      "yandex_compute_placement_group.placement_group"
+    ]
 
-  master {
-    version = "1.17"
-    zonal {
-      zone      = "${yandex_vpc_subnet.subnet_resource_name.zone}"
-      subnet_id = "${yandex_vpc_subnet.subnet_resource_name.id}"
+    source            = "./modules/kube_group"
+    kube_group_cluster_id   = "${yandex_kubernetes_cluster.yc_kube_cluster.id}"
+    kube_group_name         = "yc-kube-group"
+    kube_group_description  = "yc cluster group"
+    kube_version            = var.kube_version
+    platform_id             = "standard-v2"
+    zone                    = var.zone
+    subnet_ids              = ["${module.cluster_network.subnet_id}"]
+    labels                  = {"labels1" = "first",
+                              "labels2" = "second" }
+    public_key_path         = var.public_key_path
+    resources_memory        = 8
+    resources_cores         = 4
+    boot_disk_type          = "network-ssd"
+    boot_disk_size          = 64
+    placement_group_id      = "${yandex_compute_placement_group.placement_group[0].id}"
+    scale_policy_size       = 2
+}
+
+resource "yandex_kubernetes_cluster" "yc_kube_cluster" {
+    #depends_on = ["yandex_resourcemanager_folder_iam_member.this"]
+
+    name        = var.cluster_name
+    description = var.cluster_description
+    network_id  = "${module.cluster_network.network_id}"
+
+    master {
+      version = var.kube_version     #"1.19"
+      zonal {
+          zone      = var.zone
+          subnet_id = "${module.cluster_network.subnet_id}"
+      }
+
+      public_ip = true
     }
-    public_ip = true
-  }
 
-  service_account_id      = "${yandex_iam_service_account.this.id}"
-  node_service_account_id = "${yandex_iam_service_account.this.id}"
-  release_channel = "STABLE"
-  depends_on = ["yandex_resourcemanager_folder_iam_member.this"]
-  kms_provider {
-    key_id = "<идентификатор ключа шифрования>"
-  }
+    service_account_id      = var.service_account_id
+    node_service_account_id = var.node_service_account_id
+    release_channel = var.release_channel   #"RAPID"
+
+    /*kms_provider {
+      key_id = var.key_id       #"<идентификатор ключа шифрования>"
+    }*/
 }
 
-resource "yandex_vpc_network" "this" {}
-
-resource "yandex_vpc_subnet" "subnet_resource_name" {
-  network_id     = yandex_vpc_network.this.id
-  zone           = "ru-central1-a"
-  v4_cidr_blocks = ["192.168.20.0/24"]
-}
-
+#==============================================
+/*
 resource "yandex_iam_service_account" "this" {
-  name = "k8-sa"
+    name = var.service_account_name
 }
-
 resource "yandex_resourcemanager_folder_iam_member" "this" {
-  folder_id = var.folder-id
 
-  member = "serviceAccount:${yandex_iam_service_account.this.id}"
-  role   = "editor"
+    #folder_id = var.folder_id
+    #member = "serviceAccount:${var.service_account_id}"
+    #role   = "editor"
+    sleep_after = 30
 }
-
-locals {
-  kubeconfig = <<KUBECONFIG
-apiVersion: v1
-clusters:
-- cluster:
-    server: ${yandex_kubernetes_cluster.zonal_cluster_resource_name.master[0].external_v4_endpoint}
-    certificate-authority-data: ${base64encode(yandex_kubernetes_cluster.zonal_cluster_resource_name.master[0].cluster_ca_certificate)}
-  name: kubernetes
-contexts:
-- context:
-    cluster: kubernetes
-    user: yc
-  name: ycmk8s
-current-context: ycmk8s
-users:
-- name: yc
-  user:
-    exec:
-      apiVersion: client.authentication.k8s.io/v1beta1
-      command: yc
-      args:
-      - k8s
-      - create-token
-KUBECONFIG
-}
-output "kubeconfig" {
-  value = "${local.kubeconfig}"
-}
+*/

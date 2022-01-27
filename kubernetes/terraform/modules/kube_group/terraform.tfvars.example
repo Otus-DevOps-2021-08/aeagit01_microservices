@@ -1,0 +1,18 @@
+public_key_path         = "USER_PUB_KEY"
+
+kube_group_cluster_id   = ""
+kube_group_name         = "yc-kube-group"
+kube_group_description  = "yc cluster group"
+kube_version            = "1.19"
+platform_id             = "standard-v2"
+zone                    = "ru-central1-a"
+subnet_ids              = ["subnet_ids"]
+labels                  = {"labels1" = "first", "labels2" = "second" }
+
+resources_memory        = 8
+resources_cores         = 4
+boot_disk_type          = "network-ssd"
+boot_disk_size          = 64
+placement_group_id    = ""
+
+scale_policy_size       = 1

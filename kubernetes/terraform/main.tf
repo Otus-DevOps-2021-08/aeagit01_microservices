@@ -14,68 +14,84 @@ provider "yandex" {
   zone                     = var.zone
 }
 
-/*resource "yandex_compute_disk" "inst_disk" {
-  count = var.count_of_inst
-  name = "inst-disk${count.index}"
-  type = "network-ssd"
-  zone = var.zone
-  size = 40
-}*/
+provider "yandex" {
+  token     = "key.json"
+  cloud_id  = "<идентификатор облака>"
+  folder_id = var.folder-id
+  zone      = "ru-central1-a"
+}
 
-resource "yandex_compute_instance" "kube" {
-  count = var.count_of_inst
-  name = "kube-inst${count.index}"
-  #depends_on = [ yandex_compute_disk.inst_disk ]
+variable "folder-id" {
+  default = "<идентификатор каталога>"
+}
 
-  labels = {
-    tags = "kube-inst"
-  }
+resource "yandex_kubernetes_cluster" "zonal_cluster_resource_name" {
+  name        = "my-cluster"
+  description = "my-cluster description"
+  network_id = "${yandex_vpc_network.this.id}"
 
-  resources {
-    cores  = 4
-    memory = 4
-  }
-
-  boot_disk {
-   # disk_id =  yandex_compute_disk.inst_disk["${count.index}"].id       #"inst-disk${count.index}").id
-    initialize_params {
-      # Указать id образа созданного в предыдущем домашем задании
-      image_id = var.os_image_name
-      type = "network-ssd"
-      size = 40
+  master {
+    version = "1.17"
+    zonal {
+      zone      = "${yandex_vpc_subnet.subnet_resource_name.zone}"
+      subnet_id = "${yandex_vpc_subnet.subnet_resource_name.id}"
     }
+    public_ip = true
   }
-  network_interface {
-    subnet_id = var.subnet_id #yandex_vpc_subnet.app-subnet.id
-    nat       = true
-  }
-  metadata = {
-    ssh-keys = "ubuntu:${file(var.public_key_path)}"
+
+  service_account_id      = "${yandex_iam_service_account.this.id}"
+  node_service_account_id = "${yandex_iam_service_account.this.id}"
+  release_channel = "STABLE"
+  depends_on = ["yandex_resourcemanager_folder_iam_member.this"]
+  kms_provider {
+    key_id = "<идентификатор ключа шифрования>"
   }
 }
 
-# resource "null_resource" "app" {
-#   count = var.puma_deploy ? 1 : 0
-#   connection {
-#     type  = "ssh"
-#     host  = yandex_compute_instance.app.network_interface.0.nat_ip_address
-#     user  = "ubuntu"
-#     agent = false
-#     # путь до приватного ключа
-#     private_key = file(var.private_key)
-#   }
+resource "yandex_vpc_network" "this" {}
 
-#   provisioner "file" {
-#     source      = "${path.module}/files/puma.service"
-#     destination = "/tmp/puma.service"
+resource "yandex_vpc_subnet" "subnet_resource_name" {
+  network_id     = yandex_vpc_network.this.id
+  zone           = "ru-central1-a"
+  v4_cidr_blocks = ["192.168.20.0/24"]
+}
 
-#   }
-#   provisioner "remote-exec" {
-#     inline = [
-#       "echo 'DATABASE_URL=${var.db_internal_ip}:${var.database_port}'>>/tmp/app.env && sleep 30"
-#     ]
-#   }
-#   provisioner "remote-exec" {
-#     script = "${path.module}/files/deploy.sh"
-#   }
-# }
+resource "yandex_iam_service_account" "this" {
+  name = "k8-sa"
+}
+
+resource "yandex_resourcemanager_folder_iam_member" "this" {
+  folder_id = var.folder-id
+
+  member = "serviceAccount:${yandex_iam_service_account.this.id}"
+  role   = "editor"
+}
+
+locals {
+  kubeconfig = <<KUBECONFIG
+apiVersion: v1
+clusters:
+- cluster:
+    server: ${yandex_kubernetes_cluster.zonal_cluster_resource_name.master[0].external_v4_endpoint}
+    certificate-authority-data: ${base64encode(yandex_kubernetes_cluster.zonal_cluster_resource_name.master[0].cluster_ca_certificate)}
+  name: kubernetes
+contexts:
+- context:
+    cluster: kubernetes
+    user: yc
+  name: ycmk8s
+current-context: ycmk8s
+users:
+- name: yc
+  user:
+    exec:
+      apiVersion: client.authentication.k8s.io/v1beta1
+      command: yc
+      args:
+      - k8s
+      - create-token
+KUBECONFIG
+}
+output "kubeconfig" {
+  value = "${local.kubeconfig}"
+}

@@ -6,8 +6,8 @@ terraform {
     }
   }
 }
-#==============================================
 
+#==============================================
 provider "yandex" {
     service_account_key_file = var.service_account_key_file
     cloud_id                 = var.cloud_id
@@ -60,7 +60,20 @@ module "cluster_resourse_group" {
     placement_group_id      = "${yandex_compute_placement_group.placement_group[0].id}"
     scale_policy_size       = 2
 }
+/*
+module "kubernetes_dashboard" {
 
+  source          =  "./modules/dashboard"  #  "cookielab/dashboard/kubernetes"
+
+  service_external_port   = 8041
+  replica_count           = 2
+  cluster_readOnly_role   = "true"
+  service_type            = "LoadBalancer"
+  resourse_name           = "aea01-kube-dashboard"
+  config_path             = "~/.kube/config"
+
+}
+*/
 resource "yandex_kubernetes_cluster" "yc_kube_cluster" {
     #depends_on = ["yandex_resourcemanager_folder_iam_member.this"]
 

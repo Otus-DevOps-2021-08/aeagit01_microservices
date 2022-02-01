@@ -3,6 +3,21 @@ aeagit01 microservices repository
 =======================
     ![Main](https://github.com/Otus-DevOps-2021-08/aeagit01_microservices/actions/workflows/run-tests.yml/badge.svg?branch=main) *** ![PULL request](https://github.com/Otus-DevOps-2021-08/aeagit01_microservices/actions/workflows/run-tests.yml/badge.svg?event=pull_request)
 =======================
+kubernetes - 2
+
+1. Установка kubectl и  minikube
+2. Знакомство с параметрами конфигурационного файла kubectl
+3. Подготовка файлов Deploiment для развертывания компонентов проложения
+4. Подготовка файлов Service для настроки взаимодействия
+5. Развертывание и проверка работы приложения.
+6. Развертывание и проверка работы расширения minikube - dashboard
+7. Проверка использования Namespace
+8. Создание кластера Kubernetes в yandex cloud
+9. Развертывание приложения в кластере YC, проверка работы
+10. Подготовка сценария Terraform для развертывания кластера Kubernets
+
+
+=======================
 kubernetes - 1
 1. Подготовка манифестов для запуска POD-ов
 2. Подготовка сценария создания хостов для развертывания Kubernetes

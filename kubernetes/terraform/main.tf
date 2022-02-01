@@ -7,75 +7,109 @@ terraform {
   }
 }
 
+#==============================================
 provider "yandex" {
-  service_account_key_file = var.service_account_key_file
-  cloud_id                 = var.cloud_id
-  folder_id                = var.folder_id
-  zone                     = var.zone
+    service_account_key_file = var.service_account_key_file
+    cloud_id                 = var.cloud_id
+    folder_id                = var.folder_id
+    zone                     = var.zone
+    #token                    = "key.json"
 }
 
-/*resource "yandex_compute_disk" "inst_disk" {
-  count = var.count_of_inst
-  name = "inst-disk${count.index}"
-  type = "network-ssd"
-  zone = var.zone
-  size = 40
-}*/
+resource "yandex_compute_placement_group" "placement_group" {
+  #description = "my description"
 
-resource "yandex_compute_instance" "kube" {
-  count = var.count_of_inst
-  name = "kube-inst${count.index}"
-  #depends_on = [ yandex_compute_disk.inst_disk ]
+  count       = var.placement_group_id=="" ? 1:0
+  name        = "placement-group${count.index}"
+  folder_id   = var.folder_id
 
-  labels = {
-    tags = "kube-inst"
-  }
+}
 
-  resources {
-    cores  = 4
-    memory = 4
-  }
+module "cluster_network" {
+    #depends_on = [ module.db ]
 
-  boot_disk {
-   # disk_id =  yandex_compute_disk.inst_disk["${count.index}"].id       #"inst-disk${count.index}").id
-    initialize_params {
-      # Указать id образа созданного в предыдущем домашем задании
-      image_id = var.os_image_name
-      type = "network-ssd"
-      size = 40
+    source            = "./modules/vpc"
+    zone              = "ru-central1-a"
+    subnet-addresses  = "10.100.0.0/16"
+    subnet-name       = "cluster_subnet"
+    network-name      = "cluster_network"
+}
+
+module "cluster_resourse_group" {
+    depends_on = [
+      "module.cluster_network",
+      "yandex_kubernetes_cluster.yc_kube_cluster",
+      "yandex_compute_placement_group.placement_group"
+    ]
+
+    source            = "./modules/kube_group"
+    kube_group_cluster_id   = "${yandex_kubernetes_cluster.yc_kube_cluster.id}"
+    kube_group_name         = "yc-kube-group"
+    kube_group_description  = "yc cluster group"
+    kube_version            = var.kube_version
+    platform_id             = "standard-v2"
+    zone                    = var.zone
+    subnet_ids              = ["${module.cluster_network.subnet_id}"]
+    labels                  = {"labels1" = "first",
+                              "labels2" = "second" }
+    public_key_path         = var.public_key_path
+    resources_memory        = 8
+    resources_cores         = 4
+    boot_disk_type          = "network-ssd"
+    boot_disk_size          = 64
+    placement_group_id      = "${yandex_compute_placement_group.placement_group[0].id}"
+    scale_policy_size       = 2
+}
+/*
+module "kubernetes_dashboard" {
+
+  source          =  "./modules/dashboard"  #  "cookielab/dashboard/kubernetes"
+
+  service_external_port   = 8041
+  replica_count           = 2
+  cluster_readOnly_role   = "true"
+  service_type            = "LoadBalancer"
+  resourse_name           = "aea01-kube-dashboard"
+  config_path             = "~/.kube/config"
+
+}
+*/
+resource "yandex_kubernetes_cluster" "yc_kube_cluster" {
+    #depends_on = ["yandex_resourcemanager_folder_iam_member.this"]
+
+    name        = var.cluster_name
+    description = var.cluster_description
+    network_id  = "${module.cluster_network.network_id}"
+
+    master {
+      version = var.kube_version     #"1.19"
+      zonal {
+          zone      = var.zone
+          subnet_id = "${module.cluster_network.subnet_id}"
+      }
+
+      public_ip = true
     }
-  }
-  network_interface {
-    subnet_id = var.subnet_id #yandex_vpc_subnet.app-subnet.id
-    nat       = true
-  }
-  metadata = {
-    ssh-keys = "ubuntu:${file(var.public_key_path)}"
-  }
+
+    service_account_id      = var.service_account_id
+    node_service_account_id = var.node_service_account_id
+    release_channel = var.release_channel   #"RAPID"
+
+    /*kms_provider {
+      key_id = var.key_id       #"<идентификатор ключа шифрования>"
+    }*/
 }
 
-# resource "null_resource" "app" {
-#   count = var.puma_deploy ? 1 : 0
-#   connection {
-#     type  = "ssh"
-#     host  = yandex_compute_instance.app.network_interface.0.nat_ip_address
-#     user  = "ubuntu"
-#     agent = false
-#     # путь до приватного ключа
-#     private_key = file(var.private_key)
-#   }
+#==============================================
+/*
+resource "yandex_iam_service_account" "this" {
+    name = var.service_account_name
+}
+resource "yandex_resourcemanager_folder_iam_member" "this" {
 
-#   provisioner "file" {
-#     source      = "${path.module}/files/puma.service"
-#     destination = "/tmp/puma.service"
-
-#   }
-#   provisioner "remote-exec" {
-#     inline = [
-#       "echo 'DATABASE_URL=${var.db_internal_ip}:${var.database_port}'>>/tmp/app.env && sleep 30"
-#     ]
-#   }
-#   provisioner "remote-exec" {
-#     script = "${path.module}/files/deploy.sh"
-#   }
-# }
+    #folder_id = var.folder_id
+    #member = "serviceAccount:${var.service_account_id}"
+    #role   = "editor"
+    sleep_after = 30
+}
+*/

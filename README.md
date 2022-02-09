@@ -4,8 +4,8 @@ aeagit01 microservices repository
     ![Main](https://github.com/Otus-DevOps-2021-08/aeagit01_microservices/actions/workflows/run-tests.yml/badge.svg?branch=main) *** ![PULL request](https://github.com/Otus-DevOps-2021-08/aeagit01_microservices/actions/workflows/run-tests.yml/badge.svg?event=pull_request)
 =======================
 kubernetes - 3
-1. Знакосмтво с представленными в ДЗ схемами взаимодействия
-2. Провера работы kube-dns
+1. Знакомство с представленными в ДЗ схемами взаимодействия
+2. Проверка работы kube-dns
 3. Настройка и проверка работы LoadBalsnser для ui
 4. Установка, настройка и проверка работы ingress
 5. Настройка защиты сервиса с использованием TLS, подготовка манифеста для создания Secret

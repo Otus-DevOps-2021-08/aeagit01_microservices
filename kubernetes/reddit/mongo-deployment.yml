@@ -32,4 +32,6 @@ spec:
       volumes:
       - name: mongo-persistent-storage
         persistentVolumeClaim:
-          claimName:  smongo-gce-pd-storage
+          claimName:  mongo-pvc
+
+#name: smongo-gce-pd-storage

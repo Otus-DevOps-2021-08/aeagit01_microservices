@@ -27,6 +27,7 @@ output "placement-group-id" {
     value = yandex_compute_placement_group.placement_group[0].id
 
 }
+
 output "nr-disk-id" {
 
     value = module.nr_compute_disk[*].disk_id

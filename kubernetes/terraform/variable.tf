@@ -60,10 +60,12 @@ variable "placement_group_id" {
     description = "Placement group id"
     default     = ""
 }
+
 variable "nr_disk_enable" {
   description = "Enable/disable create non replication disk"
   default = false
 }
+
 
 /*
     = "pkuser"

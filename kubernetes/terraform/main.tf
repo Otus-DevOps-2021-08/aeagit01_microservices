@@ -25,7 +25,6 @@ resource "yandex_compute_placement_group" "placement_group" {
 
 }
 
-
 module "nr_compute_disk" {
     count       = var.nr_disk_enable ? 1:0
     #depends_on = [ module.db ]
@@ -37,6 +36,7 @@ module "nr_compute_disk" {
     disk_name   = "k8s${count.index}"
 
 }
+
 
 module "cluster_network" {
     #depends_on = [ module.db ]
@@ -107,7 +107,9 @@ resource "yandex_kubernetes_cluster" "yc_kube_cluster" {
     service_account_id      = var.service_account_id
     node_service_account_id = var.node_service_account_id
     release_channel = var.release_channel   #"RAPID"
+
     network_policy_provider = "CALICO"
+
 
     /*kms_provider {
       key_id = var.key_id       #"<идентификатор ключа шифрования>"

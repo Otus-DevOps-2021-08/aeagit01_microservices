@@ -13,6 +13,7 @@ spec:
     #nodePort: 32092
     protocol: TCP
     targetPort: 9292
+
   selector:
     app: reddit
     component: ui

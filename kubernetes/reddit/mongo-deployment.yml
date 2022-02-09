@@ -1,5 +1,7 @@
 ---
+
 # name: mongo-gce-pd-storage
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -34,3 +36,4 @@ spec:
       - name: mongo-persistent-storage
         persistentVolumeClaim:
           claimName:  mongo-pvc
+

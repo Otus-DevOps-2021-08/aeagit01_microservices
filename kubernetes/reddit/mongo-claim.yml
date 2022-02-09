@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mongo-pvc
+  name: smongo-gce-pd-storage
 spec:
   storageClassName: ""
   accessModes:

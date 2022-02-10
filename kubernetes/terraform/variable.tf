@@ -61,6 +61,11 @@ variable "placement_group_id" {
     default     = ""
 }
 
+variable "nr_disk_enable" {
+  description = "Enable/disable create non replication disk"
+  default = false
+}
+
 
 /*
     = "pkuser"
